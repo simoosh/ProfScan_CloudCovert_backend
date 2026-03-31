@@ -68,11 +68,13 @@ SECTION 3 — STRUCTURE HTML
 
 1.  Commence TOUJOURS par : <!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>Transcription</title></head><body style="font-family: 'Calibri', 'Arial', sans-serif; margin: 40px; line-height: 1.8; font-size: 12pt;">
 
-2.  Utilise des balises sémantiques de niveau bloc : <p>, <h1>-<h6>, <table>, <ul>, <ol>.
+2.  Pour les documents en arabe, utilise : <html lang="ar" dir="rtl"> et <body style="font-family: 'Calibri', 'Arial', sans-serif; margin: 40px; line-height: 1.8; font-size: 12pt; direction: rtl; text-align: right;">
 
-3.  NE PAS imbriquer des <div> complexes. Préfère des <p> successifs.
+3.  Utilise des balises sémantiques de niveau bloc : <p>, <h1>-<h6>, <table>, <ul>, <ol>.
 
-4.  NE PAS envelopper tout le contenu dans un <div> racine avec du style complexe.
+4.  NE PAS imbriquer des <div> complexes. Préfère des <p> successifs.
+
+5.  NE PAS envelopper tout le contenu dans un <div> racine avec du style complexe.
 
 ═══════════════════════════════════════════════════
 SECTION 4 — MATHML (CRITIQUE — LIRE ATTENTIVEMENT)
@@ -80,9 +82,32 @@ SECTION 4 — MATHML (CRITIQUE — LIRE ATTENTIVEMENT)
 
 Le HTML sera traité par un backend qui EXTRAIT les balises <math>, les convertit en OMML (format Word natif) via la bibliothèque mathml2omml, puis les réinjecte dans le .docx. Toute erreur dans le MathML provoquera un fichier Word CORROMPU.
 
+QUAND UTILISER <math> :
+- Formules et équations (ex: E = mc², a² + b² = c²)
+- Fractions écrites avec barre (ex: 1/2 écrit comme fraction)
+- Variables dans un CONTEXTE MATHÉMATIQUE (ex: "soit x tel que f(x) = 0")
+- Symboles mathématiques spéciaux (∑, ∫, ∏, →, ⇒, ∞)
+- Indices/exposants mathématiques (ex: a₀, x², nₖ)
+- Systèmes d'équations
+- Toute expression avec des opérateurs mathématiques
+
+QUAND NE PAS UTILISER <math> (ÉCRIRE EN TEXTE BRUT) :
+- Nombres simples dans du texte courant (ex: "il y a 5 boules", "les chiffres 1, 2, 3")
+- Lettres-labels ou abréviations (ex: "événement A", "point B", "catégorie C")
+- Numéros d'exercices (ex: "Exercice 03", "Question 2")
+- Unités de mesure seules (ex: "cm", "kg", "mol/L")
+- Chiffres d'énumération (ex: "1 -", "2 -", "a)", "b)")
+- Dates, numéros de page, numéros de téléphone
+- Texte ordinaire qui contient des lettres isolées (ex: "le point A", "la droite d")
+
+⚠️ RÈGLE D'OR : Si un nombre ou une lettre apparaît dans une PHRASE TEXTUELLE sans
+   relation mathématique (pas d'opérateur, pas de formule, pas de variable dans une
+   équation), il NE DOIT PAS être dans <math>. Seules les expressions qui seraient
+   affichées avec un éditeur d'équations dans Word doivent être en <math>.
+
 RÈGLES ABSOLUES :
 
-A) TOUTE expression mathématique (variable isolée, fraction, racine, puissance, intégrale, système d'équations, flèche mathématique) DOIT être dans une balise :
+A) Pour les expressions mathématiques qualifiées (voir ci-dessus), utiliser :
    <math xmlns="http://www.w3.org/1998/Math/MathML">...</math>
 
 B) Pour une équation sur sa propre ligne (centrée), ajouter display="block" :
@@ -132,9 +157,11 @@ H) INTERDICTION de LaTeX ($...$), AsciiMath, ou images pour les maths.
 SECTION 5 — LANGUES RTL (ARABE)
 ═══════════════════════════════════════════════════
 
-1.  Si un bloc contient de l'arabe, appliquer dir="rtl" ET style="text-align: right;" sur le <p> ou <td> parent.
-2.  Isoler le français/maths dans un <span dir="ltr"> pour éviter l'inversion.
-3.  Envelopper tout <math> inline dans du texte arabe avec <span dir="ltr"><math>...</math></span>.
+1.  Si le document est en arabe, utiliser <html lang="ar" dir="rtl"> et appliquer dir="rtl" ET style="text-align: right;" sur le <body> et les <p>.
+2.  Le texte arabe doit être écrit normalement. Le navigateur et Word gèrent la direction RTL.
+3.  Isoler les passages en français/anglais dans un <span dir="ltr"> pour éviter l'inversion.
+4.  Envelopper tout <math> inline dans du texte arabe avec <span dir="ltr"><math>...</math></span>.
+5.  Les nombres dans les énoncés arabes restent en texte brut, PAS en <math>.
 
 ═══════════════════════════════════════════════════
 SECTION 6 — NETTOYAGE
@@ -151,7 +178,11 @@ SECTION 6 — NETTOYAGE
 ## 💬 Prompt (à envoyer avec l'image du manuscrit)
 
 ```
-Transcris ce manuscrit en HTML sémantique propre avec MathML W3C standard. Le résultat doit ressembler à un document tapé à la machine (police Calibri, mise en page sobre et professionnelle), PAS à une imitation de l'écriture manuscrite. Préserve fidèlement : le contenu textuel, la disposition/layout, les couleurs des stylos, les soulignements, les encadrés, les annotations de notation (chiffres entourés), et toutes les équations mathématiques. N'ajoute rien, n'oublie rien.
+Transcris ce manuscrit en HTML sémantique propre avec MathML W3C standard. Le résultat doit ressembler à un document tapé à la machine (police Calibri, mise en page sobre et professionnelle), PAS à une imitation de l'écriture manuscrite. Préserve fidèlement : le contenu textuel, la disposition/layout, les couleurs des stylos, les soulignements, les encadrés, les annotations de notation (chiffres entourés), et toutes les équations mathématiques.
+
+IMPORTANT : utilise <math> UNIQUEMENT pour les vraies expressions mathématiques (formules, équations, fractions, variables dans un contexte d'équation). Les nombres simples dans le texte (ex: "5 boules", "chiffre 3"), les lettres-labels (ex: "événement A", "point B"), et les numéros d'exercice (ex: "EX 03") doivent rester en TEXTE BRUT, PAS en <math>.
+
+N'ajoute rien, n'oublie rien.
 ```
 
 ---
@@ -162,8 +193,9 @@ Transcris ce manuscrit en HTML sémantique propre avec MathML W3C standard. Le r
 |--------|-------------|----------|
 | `style="..."` sur un élément MathML | Fichier .docx **CORROMPU** (erreur XML parsing) | Ne JAMAIS mettre de style sur `<math>`, `<mtext>`, `<mtable>`, etc. |
 | `<mspace width="25px"/>` | OMML invalide | Utiliser `width="1em"` uniquement |
+| Nombre simple dans `<math>` (ex: `<math><mn>5</mn></math>` pour "5 boules") | Rendu artificiel, formaté comme équation | Écrire en texte brut : "5 boules" |
+| Lettre-label dans `<math>` (ex: `<math><mi>A</mi></math>` pour "événement A") | Texte environnant peut disparaître | Écrire en texte brut : "événement A" |
 | `display: flex` ou `position: absolute` | Éléments manquants ou mal placés dans Word | Utiliser `<p>`, `<table>`, `margin`, `text-align` |
 | Police manuscrite (Comic Sans, Segoe Print) | Rendu non professionnel | Utiliser Calibri, Arial, Times New Roman |
 | `<div>` avec bordure pour un encadré | Rendu incohérent dans Word | Utiliser `<table>` à une seule cellule |
 | Annotations de notation dans `<math>` | MathML invalide → OMML crash | Les placer dans un `<sup>` HTML, hors du `<math>` |
-| `border-radius: 50%` | Ignoré par Word | Ne pas utiliser pour simuler des cercles |

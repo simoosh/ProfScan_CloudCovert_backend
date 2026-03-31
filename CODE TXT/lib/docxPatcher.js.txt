@@ -9,270 +9,248 @@ const MATH_NS = 'xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/
 /**
  * Ouvre un Buffer .docx, localise les traceurs textuels ($$$MATH_OMML_N$$$)
  * dans word/document.xml et les remplace par le code OMML correspondant.
- *
- * @param {Buffer} docxBuffer  — Le .docx brut retourné par CloudConvert.
- * @param {Record<string, { omml: string, isDisplay: boolean }>} mathMap
- *   — Dictionnaire traceur → { omml, isDisplay } généré par mathProcessor.
- * @returns {Promise<Buffer>} — Le Buffer du .docx modifié.
  */
 export async function patchDocxWithOmml(docxBuffer, mathMap) {
   const placeholders = Object.keys(mathMap);
   if (placeholders.length === 0) {
-    console.log('      → Aucune équation à injecter, le .docx est retourné tel quel.');
+    console.log('      → Aucune équation à injecter.');
     return docxBuffer;
   }
 
-  // ------------------------------------------------------------------
-  // 1. Ouvrir l'archive ZIP (.docx)
-  // ------------------------------------------------------------------
   const zip = await JSZip.loadAsync(docxBuffer);
-
   const docXmlFile = zip.file('word/document.xml');
   if (!docXmlFile) {
-    throw new Error('Le fichier word/document.xml est introuvable dans le .docx.');
+    throw new Error('word/document.xml introuvable dans le .docx.');
   }
 
   let docXml = await docXmlFile.async('string');
 
-  // ------------------------------------------------------------------
-  // 2. Ajouter le namespace mathématique s'il est absent
-  // ------------------------------------------------------------------
+  // Ajouter le namespace math s'il est absent
   if (!docXml.includes(MATH_NS)) {
     docXml = docXml.replace('<w:document ', `<w:document ${MATH_NS} `);
-    console.log('      → Namespace xmlns:m ajouté à <w:document>.');
+    console.log('      → Namespace xmlns:m ajouté.');
   }
 
-  // ------------------------------------------------------------------
-  // 3. Log de diagnostic : état initial
-  // ------------------------------------------------------------------
+  // Diagnostic
   console.log(`      → ${placeholders.length} traceur(s) à injecter.`);
   for (const ph of placeholders) {
-    const intact = docXml.includes(ph);
-    // Check for fragmentation ($$$, MATH, OMML, N, $$$ in separate runs)
-    const hasDollars = docXml.includes('$$$');
-    console.log(`        [${ph}] intact=${intact}, anyDollars=${hasDollars}`);
+    console.log(`        [${ph}] intact=${docXml.includes(ph)}`);
   }
 
-  // ------------------------------------------------------------------
-  // 4. Remplacer chaque traceur par son OMML — STRATÉGIE :
-  //    On traite le document entier paragraphe par paragraphe.
-  //    Pour chaque paragraphe, on reconstruit son texte complet,
-  //    on identifie les placeholders présents (intacts ou fragmentés),
-  //    et on les remplace en une seule passe chirurgicale.
-  // ------------------------------------------------------------------
+  // Traiter paragraphe par paragraphe
   docXml = processAllParagraphs(docXml, mathMap);
 
-  // ------------------------------------------------------------------
-  // 5. Fallback : remplacement brut pour les traceurs encore présents
-  // ------------------------------------------------------------------
+  // Fallback brut pour les traceurs encore présents
   for (const [placeholder, { omml, isDisplay }] of Object.entries(mathMap)) {
-    const ommlContent = isDisplay ? `<m:oMathPara>${omml}</m:oMathPara>` : omml;
     if (docXml.includes(placeholder)) {
       console.log(`      → Fallback brut pour "${placeholder}".`);
+      const ommlContent = isDisplay ? `<m:oMathPara>${omml}</m:oMathPara>` : omml;
       docXml = docXml.split(placeholder).join(ommlContent);
     }
   }
 
-  // ------------------------------------------------------------------
-  // 6. Vérification finale
-  // ------------------------------------------------------------------
-  for (const placeholder of placeholders) {
-    if (docXml.includes(placeholder)) {
-      console.warn(`⚠️  Traceur "${placeholder}" toujours présent après patching !`);
+  // Vérification finale
+  for (const ph of placeholders) {
+    if (docXml.includes(ph)) {
+      console.warn(`⚠️  "${ph}" toujours présent après patching !`);
     } else {
-      console.log(`      ✓ "${placeholder}" injecté avec succès.`);
+      console.log(`      ✓ "${ph}" injecté.`);
     }
   }
 
-  // ------------------------------------------------------------------
-  // 7. Remettre le XML modifié dans l'archive et générer le Buffer final
-  // ------------------------------------------------------------------
   zip.file('word/document.xml', docXml);
-
-  const patchedBuffer = await zip.generateAsync({
+  return zip.generateAsync({
     type: 'nodebuffer',
     compression: 'DEFLATE',
     compressionOptions: { level: 6 },
   });
-
-  return patchedBuffer;
 }
 
 // =============================================================================
-// processAllParagraphs — Traite chaque <w:p> du document
+// processAllParagraphs — Itère sur chaque <w:p>
 // =============================================================================
 function processAllParagraphs(docXml, mathMap) {
-  // Regex non-greedy pour chaque paragraphe.
-  // OOXML garantit que <w:p> ne s'imbriquent pas.
-  const rewrittenParts = [];
+  const parts = [];
   let lastIndex = 0;
   const paraRegex = /<w:p[\s>][\s\S]*?<\/w:p>/g;
   let m;
 
   while ((m = paraRegex.exec(docXml)) !== null) {
-    // Ajouter le texte avant ce paragraphe (inchangé)
-    rewrittenParts.push(docXml.substring(lastIndex, m.index));
+    parts.push(docXml.substring(lastIndex, m.index));
     lastIndex = m.index + m[0].length;
-
-    // Traiter ce paragraphe
-    const newPara = processParagraph(m[0], mathMap);
-    rewrittenParts.push(newPara);
+    parts.push(processParagraph(m[0], mathMap));
   }
 
-  // Ajouter le reste du document après le dernier paragraphe
-  rewrittenParts.push(docXml.substring(lastIndex));
-
-  return rewrittenParts.join('');
+  parts.push(docXml.substring(lastIndex));
+  return parts.join('');
 }
 
 // =============================================================================
 // processParagraph — Traite un seul <w:p>
 // =============================================================================
 function processParagraph(paraXml, mathMap) {
-  // Reconstruire le texte complet du paragraphe à partir des <w:t>
   const fullText = extractFullText(paraXml);
 
-  // Vérifier si ce paragraphe contient au moins un placeholder
-  const presentPlaceholders = [];
+  // Trouver tous les placeholders dans ce paragraphe
+  const present = [];
   for (const ph of Object.keys(mathMap)) {
     if (fullText.includes(ph)) {
-      presentPlaceholders.push(ph);
+      present.push(ph);
     }
   }
 
-  if (presentPlaceholders.length === 0) {
-    return paraXml; // Rien à faire
-  }
+  if (present.length === 0) return paraXml;
 
-  console.log(`        Paragraphe contient: [${presentPlaceholders.join(', ')}]`);
+  console.log(`        Paragraphe contient: [${present.join(', ')}]`);
 
-  // Cas spécial : le paragraphe NE contient QUE un ou plusieurs placeholders display
-  // (pas de texte réel autour) → on peut remplacer les paragraphes entiers
-  const nonPlaceholderText = presentPlaceholders.reduce(
+  // Vérifier si le paragraphe ne contient QUE des placeholders (pas de vrai texte)
+  const nonPlaceholderText = present.reduce(
     (txt, ph) => txt.split(ph).join(''),
     fullText,
   ).trim();
 
-  // Cas : paragraphe = exactement UN display placeholder (seul dans le paragraphe)
-  if (presentPlaceholders.length === 1) {
-    const ph = presentPlaceholders[0];
+  // Cas display seul : remplacer tout le paragraphe
+  if (present.length === 1 && nonPlaceholderText === '') {
+    const ph = present[0];
     const { omml, isDisplay } = mathMap[ph];
-    const ommlContent = isDisplay ? `<m:oMathPara>${omml}</m:oMathPara>` : omml;
-
-    if (nonPlaceholderText === '') {
-      // Paragraphe ne contient que ce placeholder
+    if (isDisplay) {
       const pPr = extractPPr(paraXml);
-      console.log(`          → Remplacement complet du paragraphe (seul placeholder).`);
-      return `<w:p>${pPr}${ommlContent}</w:p>`;
+      console.log(`          → Remplacement complet (display seul).`);
+      return `<w:p>${pPr}<m:oMathPara>${omml}</m:oMathPara></w:p>`;
     }
-
-    // Paragraphe avec texte ET placeholder inline → reconstruction fine
-    return rebuildParagraphWithPlaceholders(paraXml, presentPlaceholders, mathMap, fullText);
   }
 
-  // Cas : paragraphe contient PLUSIEURS placeholders → reconstruction fine
-  return rebuildParagraphWithPlaceholders(paraXml, presentPlaceholders, mathMap, fullText);
+  // Cas mixte (texte + placeholders) : remplacement CHIRURGICAL
+  return surgicalReplace(paraXml, present, mathMap, fullText);
 }
 
 // =============================================================================
-// rebuildParagraphWithPlaceholders — Reconstruit un paragraphe en remplaçant
-// les placeholders par leurs OMML tout en préservant le texte environnant.
+// surgicalReplace — Remplace les placeholders dans un paragraphe en
+// PRÉSERVANT le formatage original (rPr) de chaque run non-placeholder.
 // =============================================================================
-function rebuildParagraphWithPlaceholders(paraXml, placeholders, mathMap, fullText) {
-  // Extraire les propriétés de paragraphe
+function surgicalReplace(paraXml, placeholders, mathMap, fullText) {
   const pPr = extractPPr(paraXml);
 
-  // Extraire les propriétés de run de référence (du premier run du paragraphe)
-  const firstRunPrMatch = paraXml.match(/<w:r[\s>][\s\S]*?<\/w:r>/);
-  const refRPr = firstRunPrMatch ? extractRPr(firstRunPrMatch[0]) : '';
+  // 1. Extraire tous les runs dans l'ordre avec leur texte et formatage
+  const runs = [];
+  const runRegex = /<w:r[\s>][\s\S]*?<\/w:r>/g;
+  let rm;
+  while ((rm = runRegex.exec(paraXml)) !== null) {
+    runs.push({
+      xml: rm[0],
+      text: extractFullText(rm[0]),
+      rPr: extractRPr(rm[0]),
+    });
+  }
 
-  // Construire une "timeline" du texte et des substitutions
-  // On part du fullText et on le découpe aux positions des placeholders
-  const segments = splitTextByPlaceholders(fullText, placeholders, mathMap);
-
-  // Construire le nouveau contenu du paragraphe
-  const newContent = segments.map(seg => {
-    if (seg.type === 'text') {
-      if (!seg.value) return '';
-      // Créer un run avec le texte
-      return `<w:r>${refRPr}<w:t xml:space="preserve">${escapeXml(seg.value)}</w:t></w:r>`;
-    } else if (seg.type === 'math') {
-      const { omml, isDisplay } = mathMap[seg.placeholder];
-      console.log(`          → Injection ${isDisplay ? 'display' : 'inline'} "${seg.placeholder}"`);
-      return isDisplay ? `<m:oMathPara>${omml}</m:oMathPara>` : omml;
+  // 2. Construire la carte : pour chaque caractère du fullText, quel run ?
+  const charToRunIdx = [];
+  for (let i = 0; i < runs.length; i++) {
+    for (let c = 0; c < runs[i].text.length; c++) {
+      charToRunIdx.push(i);
     }
-    return '';
-  }).join('');
+  }
 
-  return `<w:p>${pPr}${newContent}</w:p>`;
-}
-
-// =============================================================================
-// splitTextByPlaceholders — Découpe le texte par les placeholders présents
-// Retourne un tableau de segments { type: 'text'|'math', value?, placeholder? }
-// =============================================================================
-function splitTextByPlaceholders(text, placeholders, mathMap) {
-  // Trouver toutes les positions de placeholder dans le texte
-  const positions = [];
+  // 3. Localiser chaque placeholder dans le fullText
+  const replacements = [];
   for (const ph of placeholders) {
-    let idx = text.indexOf(ph);
-    while (idx !== -1) {
-      positions.push({ start: idx, end: idx + ph.length, placeholder: ph });
-      idx = text.indexOf(ph, idx + 1);
+    const idx = fullText.indexOf(ph);
+    if (idx === -1) continue;
+    replacements.push({
+      placeholder: ph,
+      startChar: idx,
+      endChar: idx + ph.length,
+      startRun: charToRunIdx[idx],
+      endRun: charToRunIdx[idx + ph.length - 1],
+    });
+  }
+
+  // Trier par position
+  replacements.sort((a, b) => a.startChar - b.startChar);
+
+  // 4. Construire la sortie en préservant les runs originaux
+  const output = [];
+  let currentRunIdx = 0;
+
+  for (const repl of replacements) {
+    const { omml, isDisplay } = mathMap[repl.placeholder];
+    const ommlContent = isDisplay ? `<m:oMathPara>${omml}</m:oMathPara>` : omml;
+
+    // Calculer l'offset du placeholder dans le run de début
+    let charsBeforeInRun = repl.startChar;
+    for (let i = 0; i < repl.startRun; i++) {
+      charsBeforeInRun -= runs[i].text.length;
     }
-  }
 
-  // Trier par position de début
-  positions.sort((a, b) => a.start - b.start);
-
-  const segments = [];
-  let cursor = 0;
-
-  for (const pos of positions) {
-    // Texte avant ce placeholder
-    if (pos.start > cursor) {
-      segments.push({ type: 'text', value: text.substring(cursor, pos.start) });
+    // Calculer l'offset de fin du placeholder dans le run de fin
+    let charsConsumedInEndRun = repl.endChar;
+    for (let i = 0; i < repl.endRun; i++) {
+      charsConsumedInEndRun -= runs[i].text.length;
     }
-    // Le placeholder lui-même
-    segments.push({ type: 'math', placeholder: pos.placeholder });
-    cursor = pos.end;
+
+    // A. Ajouter tous les runs non-modifiés AVANT le placeholder
+    while (currentRunIdx < repl.startRun) {
+      output.push(runs[currentRunIdx].xml);
+      currentRunIdx++;
+    }
+
+    // B. Texte AVANT le placeholder dans le run de début
+    const textBefore = runs[repl.startRun].text.substring(0, charsBeforeInRun);
+    if (textBefore) {
+      output.push(makeRun(runs[repl.startRun].rPr, textBefore));
+    }
+
+    // C. Injecter l'OMML
+    console.log(`          → Injection ${isDisplay ? 'display' : 'inline'} "${repl.placeholder}"`);
+    output.push(ommlContent);
+
+    // D. Texte APRÈS le placeholder dans le run de fin
+    const textAfter = runs[repl.endRun].text.substring(charsConsumedInEndRun);
+    if (textAfter) {
+      output.push(makeRun(runs[repl.endRun].rPr, textAfter));
+    }
+
+    currentRunIdx = repl.endRun + 1;
   }
 
-  // Texte restant après le dernier placeholder
-  if (cursor < text.length) {
-    segments.push({ type: 'text', value: text.substring(cursor) });
+  // 5. Ajouter les runs restants après le dernier placeholder
+  while (currentRunIdx < runs.length) {
+    output.push(runs[currentRunIdx].xml);
+    currentRunIdx++;
   }
 
-  return segments;
+  return `<w:p>${pPr}${output.join('')}</w:p>`;
 }
 
 // =============================================================================
 // Fonctions utilitaires
 // =============================================================================
 
-/** Extraire tout le texte visible d'un fragment XML OOXML (tous les <w:t>) */
+/** Créer un <w:r> avec formatage et texte */
+function makeRun(rPr, text) {
+  return `<w:r>${rPr}<w:t xml:space="preserve">${escapeXml(text)}</w:t></w:r>`;
+}
+
+/** Extraire tout le texte visible d'un fragment XML OOXML */
 function extractFullText(xml) {
   let text = '';
-  // Capture le contenu entre <w:t...> et </w:t>, y compris les espaces
-  xml.replace(/<w:t(?:[^>]*)>([\s\S]*?)<\/w:t>/g, (_m, t) => {
-    text += t;
-  });
+  xml.replace(/<w:t(?:[^>]*)>([\s\S]*?)<\/w:t>/g, (_m, t) => { text += t; });
   return text;
 }
 
-/** Extraire les propriétés de paragraphe <w:pPr>...</w:pPr> */
+/** Extraire <w:pPr>...</w:pPr> */
 function extractPPr(paraXml) {
   const match = paraXml.match(/<w:pPr>[\s\S]*?<\/w:pPr>/);
   return match ? match[0] : '';
 }
 
-/** Extraire les propriétés de run <w:rPr>...</w:rPr> depuis un run */
+/** Extraire <w:rPr>...</w:rPr> */
 function extractRPr(runXml) {
   const match = runXml.match(/<w:rPr>[\s\S]*?<\/w:rPr>/);
   return match ? match[0] : '';
 }
 
-/** Échapper les caractères spéciaux XML dans du texte brut */
+/** Échapper les caractères XML */
 function escapeXml(text) {
   return text
     .replace(/&/g, '&amp;')
