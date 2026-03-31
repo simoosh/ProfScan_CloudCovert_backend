@@ -1,0 +1,52 @@
+Input: 5443 chars
+Math tags: 15
+Converted: 15
+Remaining math: 0
+
+$$$MATH_OMML_0$$$ | display=false | omml=973ch
+$$$MATH_OMML_1$$$ | display=false | omml=1976ch
+$$$MATH_OMML_2$$$ | display=true | omml=2559ch
+$$$MATH_OMML_3$$$ | display=false | omml=203ch
+$$$MATH_OMML_4$$$ | display=false | omml=416ch
+$$$MATH_OMML_5$$$ | display=false | omml=203ch
+$$$MATH_OMML_6$$$ | display=false | omml=208ch
+$$$MATH_OMML_7$$$ | display=false | omml=204ch
+$$$MATH_OMML_8$$$ | display=false | omml=207ch
+$$$MATH_OMML_9$$$ | display=false | omml=204ch
+$$$MATH_OMML_10$$$ | display=false | omml=205ch
+$$$MATH_OMML_11$$$ | display=false | omml=203ch
+$$$MATH_OMML_12$$$ | display=false | omml=203ch
+$$$MATH_OMML_13$$$ | display=false | omml=370ch
+$$$MATH_OMML_14$$$ | display=false | omml=370ch
+
+$$$MATH_OMML_0$$$: OK
+$$$MATH_OMML_1$$$: OK
+$$$MATH_OMML_2$$$: OK
+$$$MATH_OMML_3$$$: OK
+$$$MATH_OMML_4$$$: OK
+$$$MATH_OMML_5$$$: OK
+$$$MATH_OMML_6$$$: OK
+$$$MATH_OMML_7$$$: OK
+$$$MATH_OMML_8$$$: OK
+$$$MATH_OMML_9$$$: OK
+$$$MATH_OMML_10$$$: OK
+$$$MATH_OMML_11$$$: OK
+$$$MATH_OMML_12$$$: OK
+$$$MATH_OMML_13$$$: OK
+$$$MATH_OMML_14$$$: OK
+
+$$$MATH_OMML_0$$$: before=[tyle="color:transparent;font-size:1pt;">] after=[</span>\n<sup style="font-size: 8pt; bor]
+$$$MATH_OMML_1$$$: before=[tyle="color:transparent;font-size:1pt;">] after=[</span>\n<sup style="font-size: 8pt; bor]
+$$$MATH_OMML_2$$$: before=[tyle="color:transparent;font-size:1pt;">] after=[</span></p>\n<sup style="font-size: 8pt;]
+$$$MATH_OMML_3$$$: before=[tyle="color:transparent;font-size:1pt;">] after=[</span>\nLa densité de probabilité est m]
+$$$MATH_OMML_4$$$: before=[tyle="color:transparent;font-size:1pt;">] after=[</span>\n<sup style="font-size: 8pt; bor]
+$$$MATH_OMML_5$$$: before=[tyle="color:transparent;font-size:1pt;">] after=[</span>\nenergie des sous couches :\n<sp]
+$$$MATH_OMML_6$$$: before=[tyle="color:transparent;font-size:1pt;">] after=[</span>\n<sup style="font-size: 8pt; bor]
+$$$MATH_OMML_7$$$: before=[tyle="color:transparent;font-size:1pt;">] after=[</span>.\n</p>\n<p style="margin-left: 2]
+$$$MATH_OMML_8$$$: before=[tyle="color:transparent;font-size:1pt;">] after=[</span>\nest le même, on classe par\n<sp]
+$$$MATH_OMML_9$$$: before=[tyle="color:transparent;font-size:1pt;">] after=[</span>.\n</p>\n<p>\nb) <span style="tex]
+$$$MATH_OMML_10$$$: before=[tyle="color:transparent;font-size:1pt;">] after=[</span>\net\n<span style="color:transpar]
+$$$MATH_OMML_11$$$: before=[tyle="color:transparent;font-size:1pt;">] after=[</span>\nsont<br>\nles mêmes\n<span styl]
+$$$MATH_OMML_12$$$: before=[tyle="color:transparent;font-size:1pt;">] after=[</span>\ndoit obligatoirement être diffe]
+$$$MATH_OMML_13$$$: before=[tyle="color:transparent;font-size:1pt;">] after=[</span>\nou\n<span style="color:transpar]
+$$$MATH_OMML_14$$$: before=[tyle="color:transparent;font-size:1pt;">] after=[</span>.\n</p>\n<p>\n<span style="text-d]

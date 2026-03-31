@@ -7,114 +7,41 @@ const OUTPUT_FILE = 'test-output.docx';
 
 // ---- HTML de test ----
 // Contient :
-//   • Du CSS inline (gras, couleurs, fond, bordure)
-//   • Une équation MathML en display (formule quadratique)
-//   • Une équation MathML inline (fraction simple)
+//   • Du CSS inline uniquement (couleurs, soulignements, tailles)
+//   • Des équations MathML display (formule dérivée, système d'équations)
+//   • Des équations MathML inline (fractions, variables)
+//   • Aucun style sur les balises MathML (compatibilité OMML)
 const testHtml = `
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-  <meta charset="UTF-8">
-  <title>مستند تجريبي — PoC CloudConvert</title>
-</head>
-<body style="font-family: 'Arial', 'Calibri', sans-serif; margin: 40px; line-height: 1.6; text-align: right;">
 
-  <h1 style="color: #1a237e; border-bottom: 3px solid #1a237e; padding-bottom: 8px; text-align: center;">
-    إثبات المفهوم : تحويل HTML → DOCX
-  </h1>
 
-  <p style="font-size: 14pt;">
-    يوضح هذا المستند التحويل <strong style="color: #c62828;">الدقيق</strong>
-    لملف HTML يحتوي على <em>تنسيق CSS مضمن</em> ومعادلات
-    <span style="background-color: #fff9c4; padding: 2px 6px; border-radius: 4px;" dir="ltr">MathML</span>
-    إلى ملف Microsoft Word <code>.docx</code> أصلي وقابل للتعديل.
-  </p>
-
-  <h2 style="color: #283593;">1. معادلة في كتلة مستقلة (Display)</h2>
-  <p>إليك المعادلة التربيعية الشهيرة :</p>
-
-  <!-- Note: Les équations restent en LTR même dans un document RTL -->
-  <div dir="ltr" style="text-align: center; margin: 15px 0;">
-    <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
-      <mrow>
-        <mi>x</mi>
-        <mo>=</mo>
-        <mfrac>
-          <mrow>
-            <mo>−</mo>
-            <mi>b</mi>
-            <mo>±</mo>
-            <msqrt>
-              <mrow>
-                <msup><mi>b</mi><mn>2</mn></msup>
-                <mo>−</mo>
-                <mn>4</mn><mi>a</mi><mi>c</mi>
-              </mrow>
-            </msqrt>
-          </mrow>
-          <mrow>
-            <mn>2</mn><mi>a</mi>
-          </mrow>
-        </mfrac>
-      </mrow>
-    </math>
-  </div>
-
-  <h2 style="color: #283593;">2. معادلة مضمنة في النص (Inline)</h2>
-  <p>
-    في الفيزياء، تُعطى الطاقة الحركية بالمعادلة
-    <span dir="ltr">
-      <math xmlns="http://www.w3.org/1998/Math/MathML">
-        <mrow>
-          <mi>E</mi>
-          <mo>=</mo>
-          <mfrac>
-            <mn>1</mn>
-            <mn>2</mn>
-          </mfrac>
-          <mi>m</mi>
-          <msup><mi>v</mi><mn>2</mn></msup>
-        </mrow>
-      </math>
-    </span>
-    حيث <em>m</em> هي الكتلة و <em>v</em> هي السرعة.
-  </p>
-
-  <h2 style="color: #283593;">3. جدول منسق</h2>
-  <table style="border-collapse: collapse; width: 100%; margin-top: 10px;" dir="rtl">
-    <thead>
-      <tr style="background-color: #1a237e; color: white;">
-        <th style="padding: 10px; border: 1px solid #ccc;">المتغير</th>
-        <th style="padding: 10px; border: 1px solid #ccc;">الوصف</th>
-        <th style="padding: 10px; border: 1px solid #ccc;">القيمة</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr style="background-color: #e8eaf6;">
-        <td style="padding: 8px; border: 1px solid #ccc; font-weight: bold; text-align: center;" dir="ltr">a</td>
-        <td style="padding: 8px; border: 1px solid #ccc;">المعامل التربيعي</td>
-        <td style="padding: 8px; border: 1px solid #ccc; text-align: center;" dir="ltr">1</td>
-      </tr>
-      <tr>
-        <td style="padding: 8px; border: 1px solid #ccc; font-weight: bold; text-align: center;" dir="ltr">b</td>
-        <td style="padding: 8px; border: 1px solid #ccc;">المعامل الخطي</td>
-        <td style="padding: 8px; border: 1px solid #ccc; text-align: center;" dir="ltr">−5</td>
-      </tr>
-      <tr style="background-color: #e8eaf6;">
-        <td style="padding: 8px; border: 1px solid #ccc; font-weight: bold; text-align: center;" dir="ltr">c</td>
-        <td style="padding: 8px; border: 1px solid #ccc;">الثابت</td>
-        <td style="padding: 8px; border: 1px solid #ccc; text-align: center;" dir="ltr">6</td>
-      </tr>
-    </tbody>
-  </table>
-
-  <p style="margin-top: 20px; padding: 12px; background-color: #e8f5e9; border-right: 4px solid #2e7d32; border-radius: 4px;">
-    ✅ إذا ظهر هذا المستندشكل صحيح في برنامج Word مع الحفاظ على تنسيقات CSS
-    والمعادلات قابلة للتعديل محلياً، فإن إثبات المفهوم (PoC) ناجح.
-  </p>
-
-</body>
-</html>
+<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>Transcription</title></head><body style="font-family: 'Calibri', 'Arial', sans-serif; margin: 40px; line-height: 1.8; font-size: 12pt;">
+<p style="text-align: center; color: #C00000; font-size: 18pt; font-weight: bold;" dir="rtl">اختبار الفصيل المقابل في</p>
+<p style="text-align: center; color: #C00000; font-size: 18pt; font-weight: bold; text-decoration: underline;" dir="rtl">الرياضيات</p>
+<p style="text-align: right; color: #0000CD; font-size: 16pt; font-weight: bold; margin-top: 30px;" dir="rtl">التمرين الأول</p>
+<p style="text-align: right; color: #0000CD;" dir="rtl">كيس غير شفاف يحتوي على كريات لا يمكن التمييز بينها باللمس.</p>
+<p style="text-align: right; color: #0000CD;" dir="rtl">كرية منها تحمل الأرقام: 5, 7, 7, 2, 3.</p>
+<p style="text-align: right; color: #0000CD;" dir="rtl">نسحب 3 كريات في آن واحد.</p>
+<p style="text-align: right; color: #0000CD; margin-top: 20px;" dir="rtl">نعتبر الأحداث التالية:</p>
+<p style="text-align: right; color: #0000CD;" dir="rtl">"A": الكرات المسحوبة بها تحمل الأرقام الزوجية.</p>
+<p style="text-align: right; color: #0000CD;" dir="rtl">"B": الكرات المسحوبة بها تحمل نفس اللون.</p>
+<p style="text-align: right; color: #0000CD;" dir="rtl">"C": مجموع الأرقام المسحوبة بها مضاعف لـ 3.</p>
+<p style="text-align: right; color: #0000CD; margin-top: 20px;" dir="rtl">1. احسب <span dir="ltr"><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>P</mi><mo>(</mo><mi>A</mi><mo>)</mo></math></span> و <span dir="ltr"><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>P</mi><mo>(</mo><mi>B</mi><mo>)</mo></math></span> و <span dir="ltr"><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>P</mi><mo>(</mo><mi>C</mi><mo>)</mo></math></span>.</p>
+<p style="text-align: right; color: #0000CD;" dir="rtl">2. بين أن <span dir="ltr"><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>P</mi><mo>(</mo><mi>A</mi><mo>∪</mo><mi>B</mi><mo>)</mo><mo>=</mo><mfrac><mrow><mn>10</mn></mrow><mrow><mn>33</mn></mrow></mfrac></math></span> ثم استنتج <span dir="ltr"><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>P</mi><mo>(</mo><mi>A</mi><mo>∩</mo><mi>B</mi><mo>)</mo></math></span>.</p>
+<p style="text-align: right; color: #0000CD;" dir="rtl">3. ليكن <span dir="ltr"><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>X</mi></math></span> المتغير العشوائي الذي يرفق بكل عملية سحب بعدد الكرات المسحوبة التي تحمل الرقم 5.</p>
+<p style="text-align: right; color: #0000CD;" dir="rtl">أ. عين مجموعة قيم <span dir="ltr"><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>X</mi></math></span>.</p>
+<p style="text-align: right; color: #0000CD;" dir="rtl">ب. و أن قانون الإحتمال للمتغير العشوائي <span dir="ltr"><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>X</mi></math></span>.</p>
+<p style="text-align: right; color: #0000CD; font-size: 16pt; font-weight: bold; margin-top: 30px;" dir="rtl">التمرين الثاني</p>
+<p style="text-align: right; color: #0000CD;" dir="rtl">المتتالية <span dir="ltr">(<math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>U</mi><mi>n</mi></msub></math>)</span> معرفة على <span dir="ltr"><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>&#x2115;</mi></math></span> بـ:</p>
+<p style="text-align: right; color: #0000CD;" dir="rtl"><span dir="ltr"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><msub><mi>U</mi><mn>0</mn></msub><mo>=</mo><mn>11</mn></math></span></p>
+<p style="text-align: right; color: #0000CD;" dir="rtl">و</p>
+<p style="text-align: right; color: #0000CD;" dir="rtl"><span dir="ltr"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><msub><mi>U</mi><mrow><mi>n</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>=</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><msub><mi>U</mi><mi>n</mi></msub><mo>+</mo><mn>3</mn></math></span></p>
+<p style="text-align: right; color: #0000CD; margin-top: 20px;" dir="rtl">1. أ. احسب <span dir="ltr"><math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>U</mi><mn>1</mn></msub></math></span> و <span dir="ltr"><math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>U</mi><mn>2</mn></msub></math></span>.</p>
+<p style="text-align: right; color: #0000CD;" dir="rtl">1. ب. بين أن <span dir="ltr">(<math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>U</mi><mi>n</mi></msub></math>)</span> ليست حسابية و ليست هندسية.</p>
+<p style="text-align: right; color: #0000CD; margin-top: 20px;" dir="rtl">2. المتتالية <span dir="ltr">(<math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>V</mi><mi>n</mi></msub></math>)</span> معرفة على <span dir="ltr"><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>&#x2115;</mi></math></span> بـ:</p>
+<p style="text-align: right; color: #0000CD;" dir="rtl"><span dir="ltr"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><msub><mi>V</mi><mi>n</mi></msub><mo>=</mo><msub><mi>U</mi><mi>n</mi></msub><mo>-</mo><mn>6</mn></math></span></p>
+<p style="text-align: right; color: #0000CD;" dir="rtl">أ. بين أن <span dir="ltr">(<math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>V</mi><mi>n</mi></msub></math>)</span> متتالية هندسية أساسها <span dir="ltr"><math xmlns="http://www.w3.org/1998/Math/MathML"><mfrac><mn>1</mn><mn>2</mn></mfrac></math></span> و حدها الأول <span dir="ltr"><math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>V</mi><mn>0</mn></msub></math></span>.</p>
+<p style="text-align: right; color: #0000CD;" dir="rtl">ب. عبر عن <span dir="ltr"><math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>V</mi><mi>n</mi></msub></math></span> بدلالة <span dir="ltr"><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>n</mi></math></span>.</p>
+</body></html>
 `;
 
 // ---- Envoi de la requête ----

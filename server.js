@@ -67,9 +67,46 @@ app.post('/convert', async (req, res) => {
   }
 });
 
+// ---------- Route de debug ----------
+/**
+ * POST /convert-debug
+ * Body JSON : { "html": "<html>...</html>" }
+ * Réponse   : JSON avec les détails intermédiaires du pipeline
+ */
+app.post('/convert-debug', async (req, res) => {
+  try {
+    const { html } = req.body;
+    if (!html || typeof html !== 'string') {
+      return res.status(400).json({ error: 'Le champ "html" est requis.' });
+    }
+
+    const { processedHtml, mathMap } = processMath(html);
+
+    const debugInfo = {
+      inputHtmlLength: html.length,
+      processedHtmlLength: processedHtml.length,
+      equationsFound: Object.keys(mathMap).length,
+      equations: {},
+      processedHtmlPreview: processedHtml.substring(0, 2000),
+    };
+
+    for (const [key, val] of Object.entries(mathMap)) {
+      debugInfo.equations[key] = {
+        isDisplay: val.isDisplay,
+        ommlLength: val.omml.length,
+        ommlPreview: val.omml.substring(0, 300),
+      };
+    }
+
+    return res.json(debugInfo);
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
 // ---------- Health-check ----------
 app.get('/', (_req, res) => {
-  res.json({ status: 'ok', message: 'Prof-Scanner CloudConvert PoC' });
+  res.json({ status: 'ok', message: 'Prof-Scanner CloudConvert PoC v2' });
 });
 
 // ---------- Démarrage ----------
