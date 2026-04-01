@@ -1,0 +1,36 @@
+﻿­ƒôØ HTML brut extrait de test.js
+   Longueur : 6411 caract├¿res
+
+      Ô£ô ├ëquation #0 convertie (inline, OMML: 415 chars)
+      Ô£ô ├ëquation #1 convertie (inline, OMML: 418 chars)
+      Ô£ô ├ëquation #2 convertie (inline, OMML: 496 chars)
+      Ô£ô ├ëquation #3 convertie (inline, OMML: 415 chars)
+      Ô£ô ├ëquation #4 convertie (inline, OMML: 491 chars)
+      Ô£ô ├ëquation #5 convertie (inline, OMML: 421 chars)
+      Ô£ô ├ëquation #6 convertie (inline, OMML: 415 chars)
+      Ô£ô ├ëquation #7 convertie (inline, OMML: 368 chars)
+      Ô£ô ├ëquation #8 convertie (inline, OMML: 491 chars)
+      Ô£ô ├ëquation #9 convertie (inline, OMML: 499 chars)
+      Ô£ô ├ëquation #10 convertie (inline, OMML: 205 chars)
+      Ô£ô ├ëquation #11 convertie (inline, OMML: 367 chars)
+      Ô£ô ├ëquation #12 convertie (inline, OMML: 491 chars)
+      Ô£ô ├ëquation #13 convertie (inline, OMML: 210 chars)
+      Ô£ô ├ëquation #14 convertie (inline, OMML: 210 chars)
+      Ô£ô ├ëquation #15 convertie (inline, OMML: 698 chars)
+      Ô£ô ├ëquation #16 convertie (inline, OMML: 491 chars)
+      Ô£ô ├ëquation #17 convertie (inline, OMML: 414 chars)
+      Ô£ô ├ëquation #18 convertie (inline, OMML: 536 chars)
+      Ô£ô ├ëquation #19 convertie (inline, OMML: 533 chars)
+      Ô£ô ├ëquation #20 convertie (inline, OMML: 532 chars)
+      Ô£ô ├ëquation #21 convertie (display, OMML: 1320 chars)
+      Ô£ô ├ëquation #22 convertie (display, OMML: 1068 chars)
+      Ô£ô ├ëquation #23 convertie (display, OMML: 206 chars)
+      Ô£ô ├ëquation #24 convertie (inline, OMML: 532 chars)
+   ├ëquations extraites : 25
+
+============================================================
+­ƒöæ HASH MD5 ├Ç AJOUTER DANS LE SANDBOX CLOUDCONVERT :
+   cf3d0d011f7d18c16a05fa8a871ce5ca
+============================================================
+
+Collez ce hash dans le Dashboard CloudConvert > Sandbox > Allowed Hashes

@@ -9,6 +9,7 @@
     "test": "node test.js"
   },
   "dependencies": {
+    "@xmldom/xmldom": "^0.9.9",
     "cheerio": "^1.0.0",
     "cloudconvert": "^3.0.0",
     "cors": "^2.8.5",

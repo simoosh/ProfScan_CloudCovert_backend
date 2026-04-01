@@ -1,0 +1,53 @@
+﻿­ƒöì DIAGNOSTIC DES ├ëQUATIONS
+
+======================================================================
+­ƒôè 7 ├®quation(s) trouv├®e(s)
+
+--- ├ëquation #0 ---
+  MathML: <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>E</mi><mo>(</mo><msubÔÇª
+  AVANT sanitize: balanced=true, hasRaw<=false
+  APR├êS sanitize: balanced=true
+  Ô£à OK APR├êS SANITIZATION
+
+--- ├ëquation #1 ---
+  MathML: <math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><msub><miÔÇª
+  AVANT sanitize: balanced=true, hasRaw<=false
+  APR├êS sanitize: balanced=true
+  Ô£à OK APR├êS SANITIZATION
+
+--- ├ëquation #2 ---
+  MathML: <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>k</mi><mo>Ôïà</mo><mi>nÔÇª
+  AVANT sanitize: balanced=false, hasRaw<=true
+    Probl├¿me: </m:r> inattendu (attendu: </n>)
+  APR├êS sanitize: balanced=true
+  Ô£à OK APR├êS SANITIZATION
+
+--- ├ëquation #3 ---
+  MathML: <math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mo>ÔêÇ</moÔÇª
+  AVANT sanitize: balanced=true, hasRaw<=false
+  APR├êS sanitize: balanced=true
+  Ô£à OK APR├êS SANITIZATION
+
+--- ├ëquation #4 ---
+  MathML: <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>n</mi><mo>=</mo><mfraÔÇª
+  AVANT sanitize: balanced=true, hasRaw<=false
+  APR├êS sanitize: balanced=true
+  Ô£à OK APR├êS SANITIZATION
+
+--- ├ëquation #5 ---
+  MathML: <math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><msub><miÔÇª
+  AVANT sanitize: balanced=true, hasRaw<=false
+  APR├êS sanitize: balanced=true
+  Ô£à OK APR├êS SANITIZATION
+
+--- ├ëquation #6 ---
+  MathML: <math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><munderovÔÇª
+  AVANT sanitize: balanced=true, hasRaw<=false
+  APR├êS sanitize: balanced=true
+  Ô£à OK APR├êS SANITIZATION
+
+======================================================================
+
+­ƒôè R├ëSULTAT : 7 OK, 0 ├ëCHOU├ë(s) sur 7
+Ô£à TOUTES les ├®quations sont valides apr├¿s sanitization !
+   ÔåÆ Le fix sanitizeOmml() r├®sout le probl├¿me de corruption.

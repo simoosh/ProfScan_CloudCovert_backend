@@ -1,0 +1,20 @@
+=== TEST 1: mml2omml DIRECT (sans cheerio) ===
+Input: <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>n</mi><mo>=</mo><mfrac><mn>1</mn><mrow><mn>2</mn><msub><mi>S</mi><mi>n</mi></msub></mrow></mfrac></mrow></math>
+Output:
+<m:oMath xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><m:r><m:t xml:space="preserve">n=</m:t></m:r><m:f><m:fPr><m:type m:val="bar"/></m:fPr><m:num><m:r><m:t xml:space="preserve">1</m:t></m:r></m:num><m:den><m:r><m:t xml:space="preserve">2</m:t></m:r><m:sSub><m:sSubPr><m:ctrlPr/></m:sSubPr><m:e><m:r><m:t xml:space="preserve">S</m:t></m:r></m:e><m:sub><m:r><m:t xml:space="preserve">n</m:t></m:r></m:sub></m:sSub></m:den></m:f></m:oMath>
+
+=== TEST 2: MathML via cheerio ===
+Cheerio output: <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>n</mi><mo>=</mo><mfrac><mn>1</mn><mrow><mn>2</mn><msub><mi>S</mi><mi>n</mi></msub></mrow></mfrac></mrow></math>
+OMML:
+<m:oMath xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><m:r><m:t xml:space="preserve">n=</m:t></m:r><m:f><m:fPr><m:type m:val="bar"/></m:fPr><m:num><m:r><m:t xml:space="preserve">1</m:t></m:r></m:num><m:den><m:r><m:t xml:space="preserve">2</m:t></m:r><m:sSub><m:sSubPr><m:ctrlPr/></m:sSubPr><m:e><m:r><m:t xml:space="preserve">S</m:t></m:r></m:e><m:sub><m:r><m:t xml:space="preserve">n</m:t></m:r></m:sub></m:sSub></m:den></m:f></m:oMath>
+
+=== TEST 3: MathML via cheerio (xmlMode: true) ===
+Cheerio output: <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>n</mi><mo>=</mo><mfrac><mn>1</mn><mrow><mn>2</mn><msub><mi>S</mi><mi>n</mi></msub></mrow></mfrac></mrow></math>
+OMML:
+<m:oMath xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><m:r><m:t xml:space="preserve">n=</m:t></m:r><m:f><m:fPr><m:type m:val="bar"/></m:fPr><m:num><m:r><m:t xml:space="preserve">1</m:t></m:r></m:num><m:den><m:r><m:t xml:space="preserve">2</m:t></m:r><m:sSub><m:sSubPr><m:ctrlPr/></m:sSubPr><m:e><m:r><m:t xml:space="preserve">S</m:t></m:r></m:e><m:sub><m:r><m:t xml:space="preserve">n</m:t></m:r></m:sub></m:sSub></m:den></m:f></m:oMath>
+
+=== TEST 4: MFRAC avec MSUB dans dénominateur (cas problématique) ===
+Input: <math xmlns="http://www.w3.org/1998/Math/MathML"><mfrac><mn>1</mn><msub><mi>S</mi><mi>n</mi></msub></mfrac></math>
+Output:
+<m:oMath xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><m:f><m:fPr><m:type m:val="bar"/></m:fPr><m:num><m:r><m:t xml:space="preserve">1</m:t></m:r></m:num><m:den><m:sSub><m:sSubPr><m:ctrlPr/></m:sSubPr><m:e><m:r><m:t xml:space="preserve">S</m:t></m:r></m:e><m:sub><m:r><m:t xml:space="preserve">n</m:t></m:r></m:sub></m:sSub></m:den></m:f></m:oMath>
+

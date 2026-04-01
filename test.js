@@ -6,48 +6,157 @@ const SERVER_URL = 'http://localhost:3000/convert';
 const OUTPUT_FILE = 'test-output.docx';
 
 // ---- HTML de test ----
-// Contient :
-//   • Du CSS inline uniquement (couleurs, soulignements, tailles)
-//   • Des équations MathML display (formule dérivée, système d'équations)
-//   • Des équations MathML inline (fractions, variables)
-//   • Aucun style sur les balises MathML (compatibilité OMML)
+// Transcription fidèle du manuscrit complexe (page 3 — solutions rationnelles)
 const testHtml = `
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Transcription</title>
+</head>
+<body style="font-family: 'Calibri', 'Arial', sans-serif; margin: 40px; line-height: 1.8; font-size: 12pt; color: #1a237e;">
 
+<p>
+<span style="border: 1px solid #1a237e; border-radius: 50%; padding: 0 4px; font-weight: bold;">3</span>
+Cherchons s'il existe des solutions rationnelles tel que les deux cotés de l'equation soient nuls.
+</p>
 
-<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>Transcription</title></head><body style="font-family: 'Calibri', 'Arial', sans-serif; margin: 40px; line-height: 1.8; font-size: 12pt;">
-<p style="text-align: center; color: #C00000; font-size: 18pt; font-weight: bold;" dir="rtl">اختبار الفصيل المقابل في</p>
-<p style="text-align: center; color: #C00000; font-size: 18pt; font-weight: bold; text-decoration: underline;" dir="rtl">الرياضيات</p>
-<p style="text-align: right; color: #0000CD; font-size: 16pt; font-weight: bold; margin-top: 30px;" dir="rtl">التمرين الأول</p>
-<p style="text-align: right; color: #0000CD;" dir="rtl">كيس غير شفاف يحتوي على كريات لا يمكن التمييز بينها باللمس.</p>
-<p style="text-align: right; color: #0000CD;" dir="rtl">كرية منها تحمل الأرقام: 5, 7, 7, 2, 3.</p>
-<p style="text-align: right; color: #0000CD;" dir="rtl">نسحب 3 كريات في آن واحد.</p>
-<p style="text-align: right; color: #0000CD; margin-top: 20px;" dir="rtl">نعتبر الأحداث التالية:</p>
-<p style="text-align: right; color: #0000CD;" dir="rtl">"A": الكرات المسحوبة بها تحمل الأرقام الزوجية.</p>
-<p style="text-align: right; color: #0000CD;" dir="rtl">"B": الكرات المسحوبة بها تحمل نفس اللون.</p>
-<p style="text-align: right; color: #0000CD;" dir="rtl">"C": مجموع الأرقام المسحوبة بها مضاعف لـ 3.</p>
-<p style="text-align: right; color: #0000CD; margin-top: 20px;" dir="rtl">1. احسب <span dir="ltr"><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>P</mi><mo>(</mo><mi>A</mi><mo>)</mo></math></span> و <span dir="ltr"><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>P</mi><mo>(</mo><mi>B</mi><mo>)</mo></math></span> و <span dir="ltr"><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>P</mi><mo>(</mo><mi>C</mi><mo>)</mo></math></span>.</p>
-<p style="text-align: right; color: #0000CD;" dir="rtl">2. بين أن <span dir="ltr"><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>P</mi><mo>(</mo><mi>A</mi><mo>∪</mo><mi>B</mi><mo>)</mo><mo>=</mo><mfrac><mrow><mn>10</mn></mrow><mrow><mn>33</mn></mrow></mfrac></math></span> ثم استنتج <span dir="ltr"><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>P</mi><mo>(</mo><mi>A</mi><mo>∩</mo><mi>B</mi><mo>)</mo></math></span>.</p>
-<p style="text-align: right; color: #0000CD;" dir="rtl">3. ليكن <span dir="ltr"><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>X</mi></math></span> المتغير العشوائي الذي يرفق بكل عملية سحب بعدد الكرات المسحوبة التي تحمل الرقم 5.</p>
-<p style="text-align: right; color: #0000CD;" dir="rtl">أ. عين مجموعة قيم <span dir="ltr"><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>X</mi></math></span>.</p>
-<p style="text-align: right; color: #0000CD;" dir="rtl">ب. و أن قانون الإحتمال للمتغير العشوائي <span dir="ltr"><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>X</mi></math></span>.</p>
-<p style="text-align: right; color: #0000CD; font-size: 16pt; font-weight: bold; margin-top: 30px;" dir="rtl">التمرين الثاني</p>
-<p style="text-align: right; color: #0000CD;" dir="rtl">المتتالية <span dir="ltr">(<math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>U</mi><mi>n</mi></msub></math>)</span> معرفة على <span dir="ltr"><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>&#x2115;</mi></math></span> بـ:</p>
-<p style="text-align: right; color: #0000CD;" dir="rtl"><span dir="ltr"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><msub><mi>U</mi><mn>0</mn></msub><mo>=</mo><mn>11</mn></math></span></p>
-<p style="text-align: right; color: #0000CD;" dir="rtl">و</p>
-<p style="text-align: right; color: #0000CD;" dir="rtl"><span dir="ltr"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><msub><mi>U</mi><mrow><mi>n</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>=</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><msub><mi>U</mi><mi>n</mi></msub><mo>+</mo><mn>3</mn></math></span></p>
-<p style="text-align: right; color: #0000CD; margin-top: 20px;" dir="rtl">1. أ. احسب <span dir="ltr"><math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>U</mi><mn>1</mn></msub></math></span> و <span dir="ltr"><math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>U</mi><mn>2</mn></msub></math></span>.</p>
-<p style="text-align: right; color: #0000CD;" dir="rtl">1. ب. بين أن <span dir="ltr">(<math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>U</mi><mi>n</mi></msub></math>)</span> ليست حسابية و ليست هندسية.</p>
-<p style="text-align: right; color: #0000CD; margin-top: 20px;" dir="rtl">2. المتتالية <span dir="ltr">(<math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>V</mi><mi>n</mi></msub></math>)</span> معرفة على <span dir="ltr"><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>&#x2115;</mi></math></span> بـ:</p>
-<p style="text-align: right; color: #0000CD;" dir="rtl"><span dir="ltr"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><msub><mi>V</mi><mi>n</mi></msub><mo>=</mo><msub><mi>U</mi><mi>n</mi></msub><mo>-</mo><mn>6</mn></math></span></p>
-<p style="text-align: right; color: #0000CD;" dir="rtl">أ. بين أن <span dir="ltr">(<math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>V</mi><mi>n</mi></msub></math>)</span> متتالية هندسية أساسها <span dir="ltr"><math xmlns="http://www.w3.org/1998/Math/MathML"><mfrac><mn>1</mn><mn>2</mn></mfrac></math></span> و حدها الأول <span dir="ltr"><math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>V</mi><mn>0</mn></msub></math></span>.</p>
-<p style="text-align: right; color: #0000CD;" dir="rtl">ب. عبر عن <span dir="ltr"><math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>V</mi><mi>n</mi></msub></math></span> بدلالة <span dir="ltr"><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>n</mi></math></span>.</p>
-</body></html>
+<p>
+pour cela :
+<math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>E</mi><mo>(</mo><msub><mi>S</mi><mi>n</mi></msub><mo>&#x22C5;</mo><mi>n</mi><mo>)</mo><mo>=</mo><mn>0</mn></mrow></math>
+<math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mo>&#x21D2;</mo><mn>0</mn><mo>&#x2264;</mo><msub><mi>S</mi><mi>n</mi></msub><mo>&#x22C5;</mo><mi>n</mi><mo>&lt;</mo><mn>1</mn></mrow></math>
+donc
+<math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mn>0</mn><mo>&lt;</mo><mi>n</mi><mo>&lt;</mo><mfrac><mn>1</mn><msub><mi>S</mi><mi>n</mi></msub></mfrac></mrow></math>
+</p>
+
+<p>
+<span style="text-decoration: underline;">a) Pour le coté</span>
+<math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mo>(</mo><mi>E</mi><mo>(</mo><msub><mi>S</mi><mi>n</mi></msub><mo>&#x22C5;</mo><mi>n</mi><mo>)</mo><mo>)</mo></mrow></math> :
+<math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>n</mi><mo>&lt;</mo><mfrac><mn>1</mn><msub><mi>S</mi><mi>n</mi></msub></mfrac></mrow></math>
+<math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mo>&#x21D2;</mo><mn>0</mn><mo>&lt;</mo><msub><mi>S</mi><mi>n</mi></msub><mo>&#x22C5;</mo><mi>n</mi><mo>&lt;</mo><mn>1</mn></mrow></math>
+</p>
+
+<p>
+par conséquent :
+<table style="border: 2px solid #1a237e; width: auto; border-collapse: collapse; display: inline-table;">
+<tr><td style="padding: 4px 10px;">
+<math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>E</mi><mo>(</mo><msub><mi>S</mi><mi>n</mi></msub><mo>&#x22C5;</mo><mi>n</mi><mo>)</mo><mo>=</mo><mn>0</mn></mrow></math>
+</td></tr>
+</table>
+</p>
+
+<p>
+<span style="text-decoration: underline;">b) Pour le coté</span>
+<math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><msub><mi>F</mi><mi>n</mi></msub><mo>(</mo><mi>n</mi><mo>)</mo></mrow></math> :
+</p>
+
+<p>
+Si
+<math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>n</mi><mo>&lt;</mo><mfrac><mn>1</mn><msub><mi>S</mi><mi>n</mi></msub></mfrac></mrow></math>
+alors pour tout entier k allant de 1 à n on a :
+</p>
+
+<p style="text-align: center;">
+<math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>k</mi><mo>&#x22C5;</mo><mi>n</mi><mo>&#x2264;</mo><mi>n</mi><mo>&#x22C5;</mo><mi>n</mi><mo>&lt;</mo><mi>n</mi><mo>&#x22C5;</mo><mfrac><mn>1</mn><msub><mi>S</mi><mi>n</mi></msub></mfrac></mrow></math>
+</p>
+
+<p>
+Or pour
+<math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>n</mi><mo>&#x2265;</mo><mn>1</mn></mrow></math>
+on sait que
+<math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><msub><mi>S</mi><mi>n</mi></msub><mo>&#x2265;</mo><mi>n</mi></mrow></math>,
+donc
+<math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mfrac><mi>n</mi><msub><mi>S</mi><mi>n</mi></msub></mfrac><mo>&lt;</mo><mn>1</mn></mrow></math>
+</p>
+
+<p>
+d'où :
+<math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>k</mi><mo>&#x22C5;</mo><mi>n</mi><mo>&lt;</mo><mn>1</mn></mrow></math>.
+C'est à dire
+<math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>E</mi><mo>(</mo><mi>k</mi><mo>&#x22C5;</mo><mi>n</mi><mo>)</mo><mo>=</mo><mn>0</mn></mrow></math>
+pour tout k.
+</p>
+
+<p>
+- On a :
+<math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><msub><mi>F</mi><mi>n</mi></msub><mo>(</mo><mi>n</mi><mo>)</mo><mo>=</mo><munderover><mo>&#x2211;</mo><mrow><mi>k</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><mi>E</mi><mo>(</mo><mi>k</mi><mo>&#x22C5;</mo><mi>n</mi><mo>)</mo></mrow></math>
+</p>
+
+<p>
+<table style="border: 2px solid #1a237e; width: auto; border-collapse: collapse;">
+<tr><td style="padding: 4px 10px;">
+Si
+<math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>n</mi><mo>&lt;</mo><mfrac><mn>1</mn><msub><mi>S</mi><mi>n</mi></msub></mfrac></mrow></math>
+<math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mo>&#x21D2;</mo><msub><mi>F</mi><mi>n</mi></msub><mo>(</mo><mi>n</mi><mo>)</mo><mo>=</mo><mn>0</mn></mrow></math>
+</td></tr>
+</table>
+</p>
+
+<p style="margin-top: 20px;">
+<span style="text-decoration: underline;">En conclusion :</span>
+</p>
+
+<p>
+- Nous avons montré que :
+<math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mo>&#x2200;</mo><mi>n</mi><mo>&#x2208;</mo><mo>]</mo><mn>0</mn><mo>;</mo><mfrac><mn>1</mn><msub><mi>S</mi><mi>n</mi></msub></mfrac><mo>[</mo></mrow></math>
+; n est solution de l'equation (*).
+</p>
+
+<p>
+Puisque l'intervalle
+<math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mo>]</mo><mn>0</mn><mo>;</mo><mfrac><mn>1</mn><msub><mi>S</mi><mi>n</mi></msub></mfrac><mo>[</mo></mrow></math>
+est non vide, il existe une infinité de solutions rationnelles non entière.
+</p>
+
+<p>
+Ex :
+<math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>n</mi><mo>=</mo><mfrac><mn>1</mn><mrow><mn>2</mn><msub><mi>S</mi><mi>n</mi></msub></mrow></mfrac></mrow></math>
+</p>
+
+<p style="text-align: center;">
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+<mrow>
+<msub><mi>F</mi><mi>n</mi></msub><mo>(</mo><mfrac><mn>1</mn><mrow><mn>2</mn><msub><mi>S</mi><mi>n</mi></msub></mrow></mfrac><mo>)</mo>
+<mo>=</mo>
+<mi>E</mi><mo>(</mo><msub><mi>S</mi><mi>n</mi></msub><mo>&#x22C5;</mo><mfrac><mn>1</mn><mrow><mn>2</mn><msub><mi>S</mi><mi>n</mi></msub></mrow></mfrac><mo>)</mo>
+</mrow>
+</math>
+</p>
+
+<p style="text-align: center;">
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+<mrow>
+<munderover><mo>&#x2211;</mo><mrow><mi>k</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover>
+<mi>E</mi><mo>(</mo><mfrac><mi>k</mi><mrow><mn>2</mn><msub><mi>S</mi><mi>n</mi></msub></mrow></mfrac><mo>)</mo>
+<mo>=</mo>
+<mi>E</mi><mo>(</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><mo>)</mo>
+</mrow>
+</math>
+</p>
+
+<p style="text-align: center;">
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+<mrow>
+<mo>=</mo><mn>0</mn>
+<mspace width="4em"/>
+<mo>=</mo><mn>0</mn>
+</mrow>
+</math>
+</p>
+
+<p style="text-align: right; margin-top: 10px;">
+<math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>n</mi><mo>=</mo><mfrac><mn>1</mn><mrow><mn>2</mn><msub><mi>S</mi><mi>n</mi></msub></mrow></mfrac></mrow></math>
+vérifie donc l'equation.
+</p>
+
+</body>
+</html>
 `;
 
 // ---- Envoi de la requête ----
 async function main() {
-  console.log(`📤 Envoi du HTML de test vers ${SERVER_URL}…`);
-  console.log(`   HTML : ${testHtml.length} caractères, 2 équations MathML.`);
+  console.log('📤 Envoi du HTML de test vers ' + SERVER_URL + '…');
+  console.log('   HTML : ' + testHtml.length + ' caractères.');
 
   try {
     const response = await fetch(SERVER_URL, {
@@ -58,18 +167,16 @@ async function main() {
 
     if (!response.ok) {
       const errorBody = await response.text();
-      throw new Error(`Serveur a répondu HTTP ${response.status} : ${errorBody}`);
+      throw new Error('Serveur a répondu HTTP ' + response.status + ' : ' + errorBody);
     }
 
-    // Lire la réponse en tant que Buffer et sauvegarder sur disque
     const arrayBuffer = await response.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    // Écriture sur disque via fs (import dynamique car c'est un script simple)
     const { writeFileSync } = await import('node:fs');
     writeFileSync(OUTPUT_FILE, buffer);
 
-    console.log(`✅ Fichier sauvegardé : ${OUTPUT_FILE} (${buffer.length} octets)`);
+    console.log('✅ Fichier sauvegardé : ' + OUTPUT_FILE + ' (' + buffer.length + ' octets)');
     console.log('   → Ouvrez-le dans Microsoft Word pour valider le résultat.');
   } catch (err) {
     console.error('❌ Erreur :', err.message);

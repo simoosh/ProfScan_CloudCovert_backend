@@ -7,9 +7,6 @@ import { mml2omml } from 'mathml2omml';
 /**
  * Pré-traite le HTML pour extraire les équations MathML, les convertir en OMML,
  * et les remplacer par des traceurs textuels uniques.
- *
- * @param {string} html — Le HTML brut contenant potentiellement des balises <math>.
- * @returns {{ processedHtml: string, mathMap: Record<string, { omml: string, isDisplay: boolean }> }}
  */
 export function processMath(html) {
   const $ = cheerio.load(html, { xmlMode: false });
@@ -18,12 +15,11 @@ export function processMath(html) {
   const mathMap = {};
   let index = 0;
 
-  // Parcourir chaque balise <math> présente dans le document
   $('math').each((_i, el) => {
     const $math = $(el);
-    let mathMlString = $.html(el); // Récupérer le MathML brut (outerHTML)
+    let mathMlString = $.html(el);
 
-    // ---- Pré-traitement du MathML pour compatibilité ----
+    // ---- Pré-traitement du MathML ----
     mathMlString = preprocessMathML(mathMlString);
 
     // ---- Détection display vs inline ----
@@ -36,31 +32,25 @@ export function processMath(html) {
       omml = mml2omml(mathMlString);
     } catch (err) {
       console.warn(
-        `⚠️  Impossible de convertir l'équation #${index} en OMML :`,
-        err.message,
+        `⚠️  Crash mml2omml sur l'équation #${index} : ${err.message}`,
       );
-      console.warn(`    MathML (100 premiers chars) : ${mathMlString.substring(0, 100)}…`);
-      // Fallback : remplacer par un texte lisible au lieu de laisser le MathML brut
-      // (le MathML brut causerait des problèmes dans le DOCX)
       const fallbackText = extractMathText(mathMlString);
       $math.replaceWith(
         `<span style="font-style:italic;">[${fallbackText}]</span>`,
       );
       index++;
-      return; // continue (.each)
+      return;
     }
+
+    // ---- POST-TRAITEMENT : sanitizer l'OMML ----
+    // Corrige le cas où < ou > apparaît non-échappé dans le texte math
+    // (ex: opérateur "inférieur à" dans <m:t>k⋅n<n⋅</m:t>)
+    omml = sanitizeOmml(omml);
 
     // ---- Créer le traceur unique ----
     const placeholder = `$$$MATH_OMML_${index}$$$`;
-
-    // Stocker la correspondance
     mathMap[placeholder] = { omml, isDisplay };
 
-    // Remplacer la balise <math> par un traceur invisible.
-    // IMPORTANT : pour les équations display (block), on enveloppe dans un <p>
-    // pour forcer LibreOffice à créer un paragraphe séparé dans le .docx.
-    // Sans cela, deux <math display="block"> adjacents seraient fusionnés dans
-    // le même <w:p>, et Word ne peut afficher qu'un seul <m:oMathPara> par paragraphe.
     if (isDisplay) {
       $math.replaceWith(
         `<p style="text-align:center;"><span style="color:transparent;font-size:1pt;">${placeholder}</span></p>`,
@@ -81,50 +71,71 @@ export function processMath(html) {
   };
 }
 
+// =============================================================================
+// sanitizeOmml — Corrige les caractères XML non-échappés dans <m:t>
+// =============================================================================
 /**
- * Pré-traite le MathML pour améliorer la compatibilité avec mathml2omml.
- * - Supprime les attributs style= sur les éléments MathML (invalides, causent des crashs)
- * - Remplace <mspace width="Xem"/> par <mo>&#x2003;</mo> (em space)
- * - Nettoie les attributs non-standard
+ * mathml2omml met parfois des caractères < ou > BRUTS dans les éléments <m:t>
+ * (texte mathématique), par ex pour l'opérateur "inférieur à".
+ * Ex: <m:t>k⋅n<n⋅</m:t>  →  <m:t>k⋅n&lt;n⋅</m:t>
+ *
+ * ATTENTION : La regex doit matcher EXACTEMENT <m:t> (texte math) et PAS
+ * <m:type>, <m:tab>, ou d'autres éléments m: qui commencent par "t".
+ * On utilise <m:t> ou <m:t suivi d'un espace pour les attributs.
  */
+function sanitizeOmml(omml) {
+  // Regex précise : <m:t> ou <m:t espace...>, PAS <m:type> <m:tab> etc.
+  // (?:\s[^>]*)? = optionnellement un espace + attributs avant le >
+  return omml.replace(/<m:t(\s[^>]*)?>(\s*[\s\S]*?)<\/m:t>/g, (_match, attrs, text) => {
+    const attrStr = attrs || '';
+    // Décoder les entités existantes pour éviter le double-encodage
+    let clean = text
+      .replace(/&amp;/g, '&')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&quot;/g, '"');
+    // Ré-encoder proprement
+    clean = clean
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+    return `<m:t${attrStr}>${clean}</m:t>`;
+  });
+}
+
+// =============================================================================
+// preprocessMathML — Nettoyage du MathML avant conversion
+// =============================================================================
 function preprocessMathML(mathml) {
   let result = mathml;
 
-  // 1. Supprimer les attributs style="..." sur TOUTES les balises MathML
-  //    (sauf <math> lui-même qui peut avoir xmlns et display)
+  // 1. Supprimer les attributs style="..." sur les balises MathML
   result = result.replace(
     /(<(?:mi|mn|mo|ms|mtext|mspace|mrow|mfrac|msqrt|mroot|msub|msup|msubsup|munder|mover|munderover|mtable|mtr|mtd|mfenced|menclose|mpadded|mphantom|merror|maction|maligngroup|malignmark)(?:\s[^>]*?))\s+style="[^"]*"/gi,
     '$1',
   );
 
-  // 2. Supprimer style sur la balise <math> elle-même (garder xmlns et display)
+  // 2. Supprimer style sur <math>
   result = result.replace(
     /(<math\s[^>]*?)\s+style="[^"]*"/gi,
     '$1',
   );
 
-  // 3. Remplacer <mspace width="..."/> par des espaces Unicode appropriées
-  //    mspace n'est pas toujours bien géré par tous les convertisseurs
+  // 3. Remplacer <mspace> par des espaces Unicode
   result = result.replace(
     /<mspace\s+width="[^"]*"\s*\/?\s*>/gi,
-    '<mo>\u2003</mo>', // EM SPACE (U+2003)
+    '<mo>\u2003</mo>',
   );
-  // Gérer aussi les mspace auto-fermantes sans attributs
   result = result.replace(/<mspace\s*\/?\s*>/gi, '<mo>\u2003</mo>');
-
-  // 4. Supprimer les attributs stretchy="false" qui sont redondants
-  //    (le comportement par défaut est souvent suffisant)
-  // Note: on garde stretchy="true" car c'est parfois nécessaire
 
   return result;
 }
 
 /**
- * Extrait un texte lisible approximatif d'un fragment MathML (pour fallback).
- * Utilisé quand mml2omml échoue, pour au moins afficher quelque chose.
+ * Extrait un texte lisible d'un fragment MathML (fallback si crash).
  */
 function extractMathText(mathml) {
-  // Extraire le contenu texte de toutes les balises MathML
   const text = mathml.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
   return text || 'équation';
 }
